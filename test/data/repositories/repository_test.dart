@@ -14,8 +14,12 @@ import 'repository_test.mocks.dart'; // Import the generated mocks
 
 // Helper to provide dummy results for Mockito
 void provideDummyResults() {
-  provideDummy<Result<List<AvailableCountry>>>(Result.error(Exception("dummy country error")));
-  provideDummy<Result<List<Holiday>>>(Result.error(Exception("dummy holiday error")));
+  provideDummy<Result<List<AvailableCountry>>>(
+    Result.error(Exception("dummy country error")),
+  );
+  provideDummy<Result<List<Holiday>>>(
+    Result.error(Exception("dummy holiday error")),
+  );
 }
 
 void main() {
@@ -24,19 +28,19 @@ void main() {
 
   setUp(() {
     mockApiClient = MockAPIClient();
-    repository = RepositoryImpl(apiClient: mockApiClient);
+    repository = RepositoryImpl(client: mockApiClient);
     provideDummyResults(); // Call it in setUp to ensure it's done for each test
   });
 
   // Dummy data
   final tAvailableCountries = [
-    AvailableCountry(countryCode: 'US', name: 'United States'),
-    AvailableCountry(countryCode: 'CA', name: 'Canada'),
+    AvailableCountry('US', 'United States'),
+    AvailableCountry('CA', 'Canada'),
   ];
 
   final tHolidays = [
-    Holiday(date: DateTime(2024, 1, 1), localName: 'New Year', name: 'New Year', countryCode: 'US', fixed: true, global: true, types: ['Public']),
-    Holiday(date: DateTime(2024, 7, 4), localName: 'Independence Day', name: 'Independence Day', countryCode: 'US', fixed: true, global: true, types: ['Public']),
+    Holiday('', 'New Year', 'New Year', 'US'),
+    Holiday('', 'Independence Day', 'Independence Day', 'US'),
   ];
 
   final tException = Exception('Something went wrong');
@@ -47,76 +51,102 @@ void main() {
     group('getAvailableCountries', () {
       test('should return Ok result when apiClient returns Ok', () async {
         // Arrange
-        when(mockApiClient.getAvailableCountries())
-            .thenAnswer((_) async => Result.ok(tAvailableCountries));
+        when(
+          mockApiClient.getAvailableCountries(),
+        ).thenAnswer((_) async => Result.ok(tAvailableCountries));
         // Act
         final result = await repository.getAvailableCountries();
         // Assert
-        expect(result.isOk, isTrue);
-        expect(result.okValue, equals(tAvailableCountries));
+        expect(result is Ok, isTrue);
+        expect((result as Ok).value, equals(tAvailableCountries));
         verify(mockApiClient.getAvailableCountries()).called(1);
       });
 
       test('should return Error result when apiClient returns Error', () async {
         // Arrange
-        when(mockApiClient.getAvailableCountries())
-            .thenAnswer((_) async => Result.error(tException));
+        when(
+          mockApiClient.getAvailableCountries(),
+        ).thenAnswer((_) async => Result.error(tException));
         // Act
         final result = await repository.getAvailableCountries();
         // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, equals(tException));
+        expect(result is Error, isTrue);
+        expect((result as Error).error, equals(tException));
         verify(mockApiClient.getAvailableCountries()).called(1);
       });
 
-      test('should return Error result when apiClient throws an exception', () async {
-        // Arrange
-        when(mockApiClient.getAvailableCountries()).thenThrow(tException);
-        // Act
-        final result = await repository.getAvailableCountries();
-        // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, equals(tException));
-        verify(mockApiClient.getAvailableCountries()).called(1);
-      });
+      test(
+        'should return Error result when apiClient throws an exception',
+        () async {
+          // Arrange
+          when(mockApiClient.getAvailableCountries()).thenThrow(tException);
+          // Act
+          final result = await repository.getAvailableCountries();
+          // Assert
+          expect(result is Error, isTrue);
+          expect((result as Error).error, equals(tException));
+          verify(mockApiClient.getAvailableCountries()).called(1);
+        },
+      );
     });
 
     group('getHolidays', () {
       test('should return Ok result when apiClient returns Ok', () async {
         // Arrange
-        when(mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode))
-            .thenAnswer((_) async => Result.ok(tHolidays));
+        when(
+          mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode),
+        ).thenAnswer((_) async => Result.ok(tHolidays));
         // Act
-        final result = await repository.getHolidays(year: tYear, countryCode: tCountryCode);
+        final result = await repository.getHolidays(
+          year: tYear,
+          countryCode: tCountryCode,
+        );
         // Assert
-        expect(result.isOk, isTrue);
-        expect(result.okValue, equals(tHolidays));
-        verify(mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode)).called(1);
+        expect(result is Ok, isTrue);
+        expect((result as Ok).value, equals(tHolidays));
+        verify(
+          mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode),
+        ).called(1);
       });
 
       test('should return Error result when apiClient returns Error', () async {
         // Arrange
-        when(mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode))
-            .thenAnswer((_) async => Result.error(tException));
+        when(
+          mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode),
+        ).thenAnswer((_) async => Result.error(tException));
         // Act
-        final result = await repository.getHolidays(year: tYear, countryCode: tCountryCode);
+        final result = await repository.getHolidays(
+          year: tYear,
+          countryCode: tCountryCode,
+        );
         // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, equals(tException));
-        verify(mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode)).called(1);
+        expect(result is Error, isTrue);
+        expect((result as Error).error, equals(tException));
+        verify(
+          mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode),
+        ).called(1);
       });
 
-      test('should return Error result when apiClient throws an exception', () async {
-        // Arrange
-        when(mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode))
-            .thenThrow(tException);
-        // Act
-        final result = await repository.getHolidays(year: tYear, countryCode: tCountryCode);
-        // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, equals(tException));
-        verify(mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode)).called(1);
-      });
+      test(
+        'should return Error result when apiClient throws an exception',
+        () async {
+          // Arrange
+          when(
+            mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode),
+          ).thenThrow(tException);
+          // Act
+          final result = await repository.getHolidays(
+            year: tYear,
+            countryCode: tCountryCode,
+          );
+          // Assert
+          expect(result is Error, isTrue);
+          expect((result as Error).error, equals(tException));
+          verify(
+            mockApiClient.getHolidays(year: tYear, countryCode: tCountryCode),
+          ).called(1);
+        },
+      );
     });
   });
 }

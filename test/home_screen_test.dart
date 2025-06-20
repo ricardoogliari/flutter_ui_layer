@@ -14,13 +14,14 @@ void main() {
   );
 
   group('HomeViewModel tests', () {
-    test('Load bookings', () {
+    test('Load bookings', () async {
       MockRepository repository = MockRepository();
       when(
         repository.getAvailableCountries(),
       ).thenAnswer((_) async => Result.ok([AvailableCountry('Brasil', 'BR')]));
 
       final viewModel = HomeViewModel(repository: repository);
+      await viewModel.initializationDone; // Await the initialization
 
       expect(viewModel.availableCountries?.isNotEmpty, true);
     });

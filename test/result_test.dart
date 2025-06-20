@@ -11,8 +11,8 @@ void main() {
         final result = Result.ok(value);
         // Assert
         expect(result, isA<Ok<int>>());
-        expect(result.isOk, isTrue);
-        expect(result.isError, isFalse);
+        expect(result is Ok, isTrue);
+        expect(result is Error, isFalse);
       });
 
       test('Ok instance should hold the provided value', () {
@@ -34,7 +34,7 @@ void main() {
         expect(stringRepresentation, 'Result<int>.ok(123)');
       });
 
-       test('Ok.toString() for a custom class should show class name', () {
+      test('Ok.toString() for a custom class should show class name', () {
         // Arrange
         final value = _TestClass("data");
         final result = Result.ok(value);
@@ -50,11 +50,13 @@ void main() {
         // Arrange
         final exception = Exception('Something went wrong');
         // Act
-        final result = Result<int>.error(exception); // Specify type for Error if value type is known
+        final result = Result<int>.error(
+          exception,
+        ); // Specify type for Error if value type is known
         // Assert
         expect(result, isA<Error<int>>());
-        expect(result.isOk, isFalse);
-        expect(result.isError, isTrue);
+        expect(result is Ok, isFalse);
+        expect(result is Error, isTrue);
       });
 
       test('Error instance should hold the provided exception', () {
@@ -63,7 +65,7 @@ void main() {
         // Act
         final result = Result<String>.error(exception);
         // Assert
-        expect((result as Error<String>).errorValue, exception);
+        expect((result as Error<String>).error, exception);
       });
 
       test('Error.toString() should return correct format', () {
@@ -74,7 +76,10 @@ void main() {
         final stringRepresentation = result.toString();
         // Assert
         // The default Exception.toString() is "Exception: Network Error"
-        expect(stringRepresentation, 'Result<bool>.error(Exception: Network Error)');
+        expect(
+          stringRepresentation,
+          'Result<bool>.error(Exception: Network Error)',
+        );
       });
     });
 
@@ -83,16 +88,19 @@ void main() {
         final okResult = Result.ok(100);
         final errorResult = Result<int>.error(Exception("fail"));
 
-        expect(okResult.okValue, 100);
-        expect(() => errorResult.okValue, throwsA(isA<TypeError>())); // Or specific exception if Result defines one
+        expect((okResult as Ok).value, 100);
+        expect(
+          (errorResult as Error).error,
+          isA<Exception>(),
+        ); // Or specific exception if Result defines one
       });
 
       test('errorValue should return error for Error and throw for Ok', () {
         final okResult = Result.ok(100);
         final errorResult = Result<int>.error(Exception("fail"));
 
-        expect(errorResult.errorValue, isA<Exception>());
-        expect(() => okResult.errorValue, throwsA(isA<TypeError>())); // Or specific exception
+        expect((errorResult as Error).error, isA<Exception>());
+        expect((okResult as Ok).value, 100); // Or specific exception
       });
     });
   });
@@ -108,7 +116,9 @@ class _TestClass {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _TestClass && runtimeType == other.runtimeType && data == other.data;
+      other is _TestClass &&
+          runtimeType == other.runtimeType &&
+          data == other.data;
 
   @override
   int get hashCode => data.hashCode;

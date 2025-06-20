@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 /// This allows the `User` class to access private members in
@@ -8,7 +9,7 @@ part 'holiday.g.dart';
 /// An annotation for the code generator to know that this class needs the
 /// JSON serialization logic to be generated.
 @JsonSerializable()
-class Holiday {
+class Holiday extends Equatable {
   Holiday(this.date, this.localName, this.name, this.countryCode);
 
   String? date;
@@ -18,4 +19,12 @@ class Holiday {
 
   factory Holiday.fromJson(Map<String, Object?> json) =>
       _$HolidayFromJson(json);
+
+  @override
+  List<Object> get props => [
+    date ?? '',
+    localName ?? '',
+    name ?? '',
+    countryCode ?? '',
+  ];
 }

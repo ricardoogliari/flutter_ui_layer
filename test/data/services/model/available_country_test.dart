@@ -48,7 +48,7 @@ void main() {
       // that would be a different type of test (e.g., using expect(() => ..., throwsA<TypeError>())).
 
       // Re-affirming the first test's structure for clarity on current model:
-       final Map<String, dynamic> anotherJsonMap = {
+      final Map<String, dynamic> anotherJsonMap = {
         'countryCode': 'CA',
         'name': 'Canada',
       };
@@ -60,14 +60,14 @@ void main() {
 
   group('AvailableCountry equality', () {
     test('two instances with the same properties should be equal', () {
-      final country1 = AvailableCountry(countryCode: 'DE', name: 'Germany');
-      final country2 = AvailableCountry(countryCode: 'DE', name: 'Germany');
+      final country1 = AvailableCountry('DE', 'Germany');
+      final country2 = AvailableCountry('DE', 'Germany');
       expect(country1, equals(country2));
     });
 
     test('two instances with different properties should not be equal', () {
-      final country1 = AvailableCountry(countryCode: 'DE', name: 'Germany');
-      final country2 = AvailableCountry(countryCode: 'FR', name: 'France');
+      final country1 = AvailableCountry('DE', 'Germany');
+      final country2 = AvailableCountry('FR', 'France');
       expect(country1, isNot(equals(country2)));
     });
   });

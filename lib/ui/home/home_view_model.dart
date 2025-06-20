@@ -5,9 +5,11 @@ import 'package:atitus_flutter_ui_layer/result.dart';
 import 'package:flutter/material.dart';
 
 class HomeViewModel extends ChangeNotifier {
+  late Future<void> initializationDone;
+
   HomeViewModel({required Repository repository}) : _repository = repository {
     getAvailableCountries = Command0(_getAvailableCountries);
-    getAvailableCountries.execute();
+    initializationDone = getAvailableCountries.execute();
   }
 
   final Repository _repository;

@@ -31,62 +31,72 @@ void main() {
         {'countryCode': 'CA', 'name': 'Canada'},
       ]);
       final tAvailableCountriesModel = [
-        AvailableCountry(countryCode: 'US', name: 'United States'),
-        AvailableCountry(countryCode: 'CA', name: 'Canada'),
+        AvailableCountry('US', 'United States'),
+        AvailableCountry('CA', 'Canada'),
       ];
       final tUri = Uri.parse("https://date.nager.at/api/v3/AvailableCountries");
 
-      test('should return Result.ok with List<AvailableCountry> on success (200)', () async {
-        // Arrange
-        when(mockHttpClient.get(tUri)).thenAnswer(
-          (_) async => http.Response(tAvailableCountriesJson, 200),
-        );
-        // Act
-        final result = await apiClient.getAvailableCountries();
-        // Assert
-        expect(result.isOk, isTrue);
-        expect(result.okValue, isA<List<AvailableCountry>>());
-        expect(result.okValue, equals(tAvailableCountriesModel));
-        verify(mockHttpClient.get(tUri)).called(1);
-      });
+      test(
+        'should return Result.ok with List<AvailableCountry> on success (200)',
+        () async {
+          // Arrange
+          when(mockHttpClient.get(tUri)).thenAnswer(
+            (_) async => http.Response(tAvailableCountriesJson, 200),
+          );
+          // Act
+          final result = await apiClient.getAvailableCountries();
+          // Assert
+          expect(result is Ok, isTrue);
+          expect((result as Ok).value, isA<List<AvailableCountry>>());
+          expect((result as Ok).value, equals(tAvailableCountriesModel));
+          verify(mockHttpClient.get(tUri)).called(1);
+        },
+      );
 
       test('should return Result.error on HTTP error (e.g., 404)', () async {
         // Arrange
-        when(mockHttpClient.get(tUri)).thenAnswer(
-          (_) async => http.Response('Not Found', 404),
-        );
+        when(
+          mockHttpClient.get(tUri),
+        ).thenAnswer((_) async => http.Response('Not Found', 404));
         // Act
         final result = await apiClient.getAvailableCountries();
         // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, isA<Exception>());
+        expect(result is Error, isTrue);
+        expect((result as Error).error, isA<Exception>());
         verify(mockHttpClient.get(tUri)).called(1);
       });
 
-      test('should return Result.error on network exception (e.g., SocketException)', () async {
-        // Arrange
-        final tSocketException = SocketException('Failed host lookup');
-        when(mockHttpClient.get(tUri)).thenThrow(tSocketException);
-        // Act
-        final result = await apiClient.getAvailableCountries();
-        // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, equals(tSocketException));
-        verify(mockHttpClient.get(tUri)).called(1);
-      });
+      test(
+        'should return Result.error on network exception (e.g., SocketException)',
+        () async {
+          // Arrange
+          final tSocketException = SocketException('Failed host lookup');
+          when(mockHttpClient.get(tUri)).thenThrow(tSocketException);
+          // Act
+          final result = await apiClient.getAvailableCountries();
+          // Assert
+          expect(result is Error, isTrue);
+          expect((result as Error).error, equals(tSocketException));
+          verify(mockHttpClient.get(tUri)).called(1);
+        },
+      );
 
-      test('should return Result.error on malformed JSON (200 but decode fails)', () async {
-        // Arrange
-        when(mockHttpClient.get(tUri)).thenAnswer(
-          (_) async => http.Response('{"malformed": "json"', 200), // Invalid JSON
-        );
-        // Act
-        final result = await apiClient.getAvailableCountries();
-        // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, isA<FormatException>());
-        verify(mockHttpClient.get(tUri)).called(1);
-      });
+      test(
+        'should return Result.error on malformed JSON (200 but decode fails)',
+        () async {
+          // Arrange
+          when(mockHttpClient.get(tUri)).thenAnswer(
+            (_) async =>
+                http.Response('{"malformed": "json"', 200), // Invalid JSON
+          );
+          // Act
+          final result = await apiClient.getAvailableCountries();
+          // Assert
+          expect(result is Error, isTrue);
+          expect((result as Error).error, isA<FormatException>());
+          verify(mockHttpClient.get(tUri)).called(1);
+        },
+      );
     });
 
     group('getHolidays', () {
@@ -95,109 +105,111 @@ void main() {
       final tHolidaysJson = jsonEncode([
         {
           'date': '2023-01-01',
-          'localName': "New Year's Day",
-          'name': "New Year's Day",
+          'localName': 'New Years Day',
+          'name': 'New Years Day',
           'countryCode': 'US',
-          'fixed': true,
-          'global': true,
-          'counties': null,
-          'launchYear': null,
-          'types': ['Public']
         },
         {
           'date': '2023-07-04',
-          'localName': "Independence Day",
-          'name': "Independence Day",
+          'localName': 'Independence Day',
+          'name': 'Independence Day',
           'countryCode': 'US',
-          'fixed': true,
-          'global': true,
-          'counties': null,
-          'launchYear': null,
-          'types': ['Public']
         },
       ]);
       final tHolidaysModel = [
-        Holiday(
-            date: DateTime.parse('2023-01-01'),
-            localName: "New Year's Day",
-            name: "New Year's Day",
-            countryCode: 'US',
-            fixed: true,
-            global: true,
-            counties: null,
-            launchYear: null,
-            types: ['Public']),
-        Holiday(
-            date: DateTime.parse('2023-07-04'),
-            localName: "Independence Day",
-            name: "Independence Day",
-            countryCode: 'US',
-            fixed: true,
-            global: true,
-            counties: null,
-            launchYear: null,
-            types: ['Public']),
+        Holiday('2023-01-01', 'New Years Day', 'New Years Day', 'US'),
+        Holiday('2023-07-04', 'Independence Day', 'Independence Day', 'US'),
       ];
-      final tUri = Uri.parse("https://date.nager.at/api/v3/publicholidays/$tYear/$tCountryCode");
+      final tUri = Uri.parse(
+        "https://date.nager.at/api/v3/publicholidays/$tYear/$tCountryCode",
+      );
 
-      test('should return Result.ok with List<Holiday> on success (200)', () async {
-        // Arrange
-        when(mockHttpClient.get(tUri)).thenAnswer(
-          (_) async => http.Response(tHolidaysJson, 200),
-        );
-        // Act
-        final result = await apiClient.getHolidays(year: tYear, countryCode: tCountryCode);
-        // Assert
-        expect(result.isOk, isTrue);
-        expect(result.okValue, isA<List<Holiday>>());
-        // Model comparison can be tricky with DateTime, ensure proper equals implementation in Holiday or compare fields
-        expect(result.okValue!.length, tHolidaysModel.length);
-        for (int i = 0; i < result.okValue!.length; i++) {
-          expect(result.okValue![i].date, tHolidaysModel[i].date);
-          expect(result.okValue![i].name, tHolidaysModel[i].name);
-          expect(result.okValue![i].localName, tHolidaysModel[i].localName);
-          expect(result.okValue![i].countryCode, tHolidaysModel[i].countryCode);
-        }
-        verify(mockHttpClient.get(tUri)).called(1);
-      });
+      test(
+        'should return Result.ok with List<Holiday> on success (200)',
+        () async {
+          // Arrange
+          when(
+            mockHttpClient.get(tUri),
+          ).thenAnswer((_) async => http.Response(tHolidaysJson, 200));
+          // Act
+          final result = await apiClient.getHolidays(
+            year: tYear,
+            countryCode: tCountryCode,
+          );
+          // Assert
+          expect(result is Ok, isTrue);
+          expect((result as Ok).value, isA<List<Holiday>>());
+          // Model comparison can be tricky with DateTime, ensure proper equals implementation in Holiday or compare fields
+          expect((result as Ok).value.length, tHolidaysModel.length);
+          for (int i = 0; i < (result as Ok).value.length; i++) {
+            expect((result as Ok).value[i].date, tHolidaysModel[i].date);
+            expect((result as Ok).value[i].name, tHolidaysModel[i].name);
+            expect(
+              (result as Ok).value[i].localName,
+              tHolidaysModel[i].localName,
+            );
+            expect(
+              (result as Ok).value[i].countryCode,
+              tHolidaysModel[i].countryCode,
+            );
+          }
+          verify(mockHttpClient.get(tUri)).called(1);
+        },
+      );
 
       test('should return Result.error on HTTP error (e.g., 500)', () async {
         // Arrange
-        when(mockHttpClient.get(tUri)).thenAnswer(
-          (_) async => http.Response('Server Error', 500),
-        );
+        when(
+          mockHttpClient.get(tUri),
+        ).thenAnswer((_) async => http.Response('Server Error', 500));
         // Act
-        final result = await apiClient.getHolidays(year: tYear, countryCode: tCountryCode);
+        final result = await apiClient.getHolidays(
+          year: tYear,
+          countryCode: tCountryCode,
+        );
         // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, isA<Exception>());
+        expect(result is Error, isTrue);
+        expect((result as Error).error, isA<Exception>());
         verify(mockHttpClient.get(tUri)).called(1);
       });
 
-      test('should return Result.error on network exception (e.g., SocketException)', () async {
-        // Arrange
-        final tSocketException = SocketException('No internet');
-        when(mockHttpClient.get(tUri)).thenThrow(tSocketException);
-        // Act
-        final result = await apiClient.getHolidays(year: tYear, countryCode: tCountryCode);
-        // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, equals(tSocketException));
-        verify(mockHttpClient.get(tUri)).called(1);
-      });
+      test(
+        'should return Result.error on network exception (e.g., SocketException)',
+        () async {
+          // Arrange
+          final tSocketException = SocketException('No internet');
+          when(mockHttpClient.get(tUri)).thenThrow(tSocketException);
+          // Act
+          final result = await apiClient.getHolidays(
+            year: tYear,
+            countryCode: tCountryCode,
+          );
+          // Assert
+          expect(result is Error, isTrue);
+          expect((result as Error).error, equals(tSocketException));
+          verify(mockHttpClient.get(tUri)).called(1);
+        },
+      );
 
-      test('should return Result.error on malformed JSON (200 but decode fails)', () async {
-        // Arrange
-        when(mockHttpClient.get(tUri)).thenAnswer(
-          (_) async => http.Response('[{"malformed": "json"}', 200), // Invalid JSON
-        );
-        // Act
-        final result = await apiClient.getHolidays(year: tYear, countryCode: tCountryCode);
-        // Assert
-        expect(result.isError, isTrue);
-        expect(result.errorValue, isA<FormatException>());
-        verify(mockHttpClient.get(tUri)).called(1);
-      });
+      test(
+        'should return Result.error on malformed JSON (200 but decode fails)',
+        () async {
+          // Arrange
+          when(mockHttpClient.get(tUri)).thenAnswer(
+            (_) async =>
+                http.Response('[{"malformed": "json"}', 200), // Invalid JSON
+          );
+          // Act
+          final result = await apiClient.getHolidays(
+            year: tYear,
+            countryCode: tCountryCode,
+          );
+          // Assert
+          expect(result is Error, isTrue);
+          expect((result as Error).error, isA<FormatException>());
+          verify(mockHttpClient.get(tUri)).called(1);
+        },
+      );
     });
   });
 }
