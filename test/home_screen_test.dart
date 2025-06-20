@@ -14,7 +14,7 @@ void main() {
   );
 
   group('HomeViewModel tests', () {
-    test('Load bookings', () async { // Make the test function async
+    test('Load bookings', () async {
       MockRepository repository = MockRepository();
       when(
         repository.getAvailableCountries(),
